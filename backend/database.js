@@ -6,6 +6,13 @@ const dbPath = path.resolve(__dirname, 'database.sqlite');
 const db = new sqlite3.Database(dbPath);
 
 db.serialize(() => {
+  // Eski tabloları temizle (Sıfırdan temiz kurulum için)
+  db.run(`DROP TABLE IF EXISTS users`);
+  db.run(`DROP TABLE IF EXISTS customers`);
+  db.run(`DROP TABLE IF EXISTS products`);
+  db.run(`DROP TABLE IF EXISTS transactions`);
+  db.run(`DROP TABLE IF EXISTS invoices`);
+
   db.run(`CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
