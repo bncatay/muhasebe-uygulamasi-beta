@@ -6,7 +6,6 @@ const dbPath = path.resolve(__dirname, 'database.sqlite');
 const db = new sqlite3.Database(dbPath);
 
 db.serialize(() => {
-  // 1. Kullanıcılar (Users & Admin)
   db.run(`CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
@@ -17,7 +16,6 @@ db.serialize(() => {
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
 
-  // 2. Müşteriler & Tedarikçiler
   db.run(`CREATE TABLE IF NOT EXISTS customers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
@@ -32,7 +30,6 @@ db.serialize(() => {
     FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
   )`);
 
-  // 3. Stok / Ürünler
   db.run(`CREATE TABLE IF NOT EXISTS products (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
@@ -48,7 +45,6 @@ db.serialize(() => {
     FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
   )`);
 
-  // 4. Gelir & Gider İşlemleri
   db.run(`CREATE TABLE IF NOT EXISTS transactions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
@@ -63,7 +59,6 @@ db.serialize(() => {
     FOREIGN KEY(customer_id) REFERENCES customers(id) ON DELETE SET NULL
   )`);
 
-  // 5. Faturalar
   db.run(`CREATE TABLE IF NOT EXISTS invoices (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
@@ -81,22 +76,22 @@ db.serialize(() => {
     FOREIGN KEY(customer_id) REFERENCES customers(id)
   )`);
 
-  // Varsayılan Admin Hesabını ve Örnek Kullanıcıyı Ekle
+  // Güvenli ve benzersiz admin şifresi
   db.get("SELECT COUNT(*) AS count FROM users", (err, row) => {
     if (row && row.count === 0) {
-      console.log('Varsayılan hesaplar oluşturuluyor...');
+      console.log('Varsayılan özel hesaplar oluşturuluyor...');
 
-      const adminPasswordHash = bcrypt.hashSync('admin123', 10);
-      const demoUserPasswordHash = bcrypt.hashSync('123456', 10);
+      const secureAdminPasswordHash = bcrypt.hashSync('Hk9274!Mhk#99', 10);
+      const secureDemoPasswordHash = bcrypt.hashSync('Dm8361!Frm#88', 10);
 
-      // Admin Ekle
+      // Güvenli Admin Hesabı
       db.run(`INSERT INTO users (username, password_hash, company_name, role) VALUES (?, ?, ?, ?)`,
-        ['admin', adminPasswordHash, 'Sistem Yönetimi (Admin)', 'admin']
+        ['admin', secureAdminPasswordHash, 'Sistem Yönetimi (Admin)', 'admin']
       );
 
-      // Örnek Kullanıcı Ekle
+      // Güvenli Demo Hesabı
       db.run(`INSERT INTO users (username, password_hash, company_name, role) VALUES (?, ?, ?, ?)`,
-        ['demofirma', demoUserPasswordHash, 'Örnek Dükkan Ltd.', 'user'],
+        ['demofirma', secureDemoPasswordHash, 'Örnek Dükkan Ltd.', 'user'],
         function() {
           const userId = this.lastID;
           const today = new Date().toISOString().split('T')[0];
