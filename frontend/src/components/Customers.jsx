@@ -17,10 +17,14 @@ export default function Customers() {
     balance: 0
   });
 
+  const token = localStorage.getItem('token');
+
   const loadCustomers = () => {
-    fetch(`${API_BASE_URL}/api/customers`)
+    fetch(`${API_BASE_URL}/api/customers`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
       .then(res => res.json())
-      .then(data => setCustomers(data));
+      .then(data => setCustomers(Array.isArray(data) ? data : []));
   };
 
   useEffect(() => {
@@ -31,7 +35,10 @@ export default function Customers() {
     e.preventDefault();
     fetch(`${API_BASE_URL}/api/customers`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
       body: JSON.stringify(formData)
     })
       .then(res => res.json())
@@ -44,7 +51,10 @@ export default function Customers() {
 
   const handleDelete = (id) => {
     if (window.confirm('Bu cari hesabı silmek istediğinize emin misiniz?')) {
-      fetch(`${API_BASE_URL}/api/customers/${id}`, { method: 'DELETE' })
+      fetch(`${API_BASE_URL}/api/customers/${id}`, { 
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
         .then(() => loadCustomers());
     }
   };

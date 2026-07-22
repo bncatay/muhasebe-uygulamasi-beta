@@ -8,7 +8,10 @@ export default function Dashboard({ onNewTransaction }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/dashboard`)
+    const token = localStorage.getItem('token');
+    fetch(`${API_BASE_URL}/api/dashboard`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
       .then(res => res.json())
       .then(json => {
         setData(json);

@@ -18,18 +18,26 @@ export default function Invoices() {
     items: [{ description: '', quantity: 1, unit_price: 0, total: 0 }]
   });
 
+  const token = localStorage.getItem('token');
+
   const loadData = () => {
-    fetch(`${API_BASE_URL}/api/invoices`)
+    fetch(`${API_BASE_URL}/api/invoices`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
       .then(res => res.json())
-      .then(data => setInvoices(data));
+      .then(data => setInvoices(Array.isArray(data) ? data : []));
 
-    fetch(`${API_BASE_URL}/api/customers`)
+    fetch(`${API_BASE_URL}/api/customers`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
       .then(res => res.json())
-      .then(data => setCustomers(data));
+      .then(data => setCustomers(Array.isArray(data) ? data : []));
 
-    fetch(`${API_BASE_URL}/api/products`)
+    fetch(`${API_BASE_URL}/api/products`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
       .then(res => res.json())
-      .then(data => setProducts(data));
+      .then(data => setProducts(Array.isArray(data) ? data : []));
   };
 
   useEffect(() => {
@@ -71,7 +79,10 @@ export default function Invoices() {
 
     fetch(`${API_BASE_URL}/api/invoices`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
       body: JSON.stringify(payload)
     })
       .then(res => res.json())

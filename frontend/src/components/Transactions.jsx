@@ -19,14 +19,20 @@ export default function Transactions() {
     customer_id: ''
   });
 
-  const loadData = () => {
-    fetch(`${API_BASE_URL}/api/transactions`)
-      .then(res => res.json())
-      .then(data => setTransactions(data));
+  const token = localStorage.getItem('token');
 
-    fetch(`${API_BASE_URL}/api/customers`)
+  const loadData = () => {
+    fetch(`${API_BASE_URL}/api/transactions`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
       .then(res => res.json())
-      .then(data => setCustomers(data));
+      .then(data => setTransactions(Array.isArray(data) ? data : []));
+
+    fetch(`${API_BASE_URL}/api/customers`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => setCustomers(Array.isArray(data) ? data : []));
   };
 
   useEffect(() => {
@@ -37,7 +43,10 @@ export default function Transactions() {
     e.preventDefault();
     fetch(`${API_BASE_URL}/api/transactions`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
       body: JSON.stringify(formData)
     })
       .then(res => res.json())
@@ -58,7 +67,10 @@ export default function Transactions() {
 
   const handleDelete = (id) => {
     if (window.confirm('Bu işlemi silmek istediğinize emin misiniz?')) {
-      fetch(`${API_BASE_URL}/api/transactions/${id}`, { method: 'DELETE' })
+      fetch(`${API_BASE_URL}/api/transactions/${id}`, { 
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
         .then(() => loadData());
     }
   };

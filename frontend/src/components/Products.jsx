@@ -18,10 +18,14 @@ export default function Products() {
     unit: 'Adet'
   });
 
+  const token = localStorage.getItem('token');
+
   const loadProducts = () => {
-    fetch(`${API_BASE_URL}/api/products`)
+    fetch(`${API_BASE_URL}/api/products`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
       .then(res => res.json())
-      .then(data => setProducts(data));
+      .then(data => setProducts(Array.isArray(data) ? data : []));
   };
 
   useEffect(() => {
@@ -32,7 +36,10 @@ export default function Products() {
     e.preventDefault();
     fetch(`${API_BASE_URL}/api/products`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
       body: JSON.stringify(formData)
     })
       .then(res => res.json())
@@ -46,14 +53,20 @@ export default function Products() {
   const handleStockUpdate = (id, quantityChange) => {
     fetch(`${API_BASE_URL}/api/products/${id}/stock`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
       body: JSON.stringify({ quantityChange })
     }).then(() => loadProducts());
   };
 
   const handleDelete = (id) => {
     if (window.confirm('Bu ürünü silmek istediğinize emin misiniz?')) {
-      fetch(`${API_BASE_URL}/api/products/${id}`, { method: 'DELETE' })
+      fetch(`${API_BASE_URL}/api/products/${id}`, { 
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
         .then(() => loadProducts());
     }
   };
